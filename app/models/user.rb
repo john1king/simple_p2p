@@ -14,6 +14,11 @@ class User < ApplicationRecord
     update_balance(self, other_user, -money)
   end
 
+  # 借钱给其他用户（主要为了方便调用）
+  def lend_to(other_user, money)
+    borrow_from(other_user, -money)
+  end
+
   # 从其他用户处借入的金额
   def money_borrow_from(other_user)
     balance = Balance.between(self, other_user)
@@ -22,6 +27,16 @@ class User < ApplicationRecord
     else
       balance.money
     end
+  end
+
+  # 借入总金额
+  def amount_borrow_money
+    - Balance.where("user_id = ? and money < 0", [id]).sum(:money) + Balance.where("other_user_id = ? and money > 0", [id]).sum(:money)
+  end
+
+  # 借出的总金额
+  def amount_lend_money
+    Balance.where("user_id = ? and money > 0", id).sum(:money) - Balance.where("other_user_id = ? and money < 0", id).sum(:money)
   end
 
   private

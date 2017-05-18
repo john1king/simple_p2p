@@ -54,4 +54,26 @@ class UserTest < ActiveSupport::TestCase
     end
   end
 
+  test 'amount_borrow_money and amount_lend_money' do
+    a = User.create!(name: 'a', money: 100)
+    b = User.create!(name: 'b', money: 100)
+    c = User.create!(name: 'c', money: 100)
+
+    a.borrow_from(b, 50)
+    a.lend_to(c, 100)
+
+    assert_equal 300, User.sum(:money)
+
+    assert_equal 50, a.money
+    assert_equal 50, a.amount_borrow_money
+    assert_equal 100, a.amount_lend_money
+
+    assert_equal 50, b.money
+    assert_equal 0, b.amount_borrow_money
+    assert_equal 50, b.amount_lend_money
+
+    assert_equal 200, c.money
+    assert_equal 100, c.amount_borrow_money
+    assert_equal 0, c.amount_lend_money
+  end
 end
