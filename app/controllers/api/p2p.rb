@@ -31,7 +31,7 @@ class API::P2P < Grape::API
     end
     get 'balances' do
       {
-        money: User.find(params[:from]).money_borrow_from(User.find(params[:to]))
+        money: User.find(params[:from]).money_borrowed_from(User.find(params[:to]))
       }
     end
 

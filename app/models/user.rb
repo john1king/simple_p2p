@@ -1,54 +1,42 @@
 class User < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
-  validates :money , numericality: { greater_than_or_equal_to: 0 }
+  validates :amount , numericality: { greater_than_or_equal_to: 0 }
 
   # 从其他用户处借钱
-  def borrow_from(other_user, money)
-    update_balance self, other_user, money
+  def borrow_from(lender, money)
+    Loan.transfer(lender, self, money)
   end
 
   # 还款给其他用户
-  def refund_to(other_user, money)
-    raise RuntimeError if money_borrow_from(other_user) < money
-    update_balance(self, other_user, -money)
+  def refund_to(lender, money)
+    raise RuntimeError if money_borrowed_from(lender) < money
+    Loan.transfer(lender, self, -money)
   end
 
   # 借钱给其他用户（主要为了方便调用）
-  def lend_to(other_user, money)
-    borrow_from(other_user, -money)
+  def lend_to(borrower, money)
+    borrower.borrow_from(self, money)
   end
 
   # 从其他用户处借入的金额，< 0 表示借出
-  def money_borrow_from(other_user)
-    balance = Balance.between(self, other_user)
-    if balance.user_id == self.id
-      -balance.money
+  def money_borrowed_from(lender)
+    loan = Loan.between(self, lender)
+    if loan.lender_id == self.id
+      -loan.money
     else
-      balance.money
+      loan.money
     end
   end
 
   # 借入总金额
-  def amount_borrow_money
-    - Balance.where("user_id = ? and money < 0", [id]).sum(:money) + Balance.where("other_user_id = ? and money > 0", [id]).sum(:money)
+  def amount_borrowed
+    - Loan.where("lender_id = ? and money < 0", [id]).sum(:money) + Loan.where("borrower_id = ? and money > 0", [id]).sum(:money)
   end
 
   # 借出的总金额
-  def amount_lend_money
-    Balance.where("user_id = ? and money > 0", id).sum(:money) - Balance.where("other_user_id = ? and money < 0", id).sum(:money)
-  end
-
-  private
-
-  def update_balance(user, other_user, money)
-    self.transaction do
-      user.money += money
-      other_user.money -= money
-      user.save!
-      other_user.save!
-      Balance.update_between(user, other_user, -money)
-    end
+  def amount_lend
+    Loan.where("lender_id = ? and money > 0", id).sum(:money) - Loan.where("borrower_id = ? and money < 0", id).sum(:money)
   end
 
 end

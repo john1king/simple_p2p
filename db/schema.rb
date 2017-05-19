@@ -15,18 +15,19 @@ ActiveRecord::Schema.define(version: 20170518111828) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "balances", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "other_user_id"
+  create_table "loans", force: :cascade do |t|
+    t.integer "lender_id"
+    t.integer "borrower_id"
     t.decimal "money", precision: 10, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id", "other_user_id"], name: "index_balances_on_user_id_and_other_user_id", unique: true
+    t.index ["borrower_id"], name: "index_loans_on_borrower_id"
+    t.index ["lender_id", "borrower_id"], name: "index_loans_on_lender_id_and_borrower_id", unique: true
   end
 
   create_table "users", force: :cascade do |t|
     t.string "name"
-    t.decimal "money", default: "0.0"
+    t.decimal "amount", precision: 10, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
