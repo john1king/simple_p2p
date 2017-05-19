@@ -19,10 +19,10 @@ class User < ApplicationRecord
     borrow_from(other_user, -money)
   end
 
-  # 从其他用户处借入的金额
+  # 从其他用户处借入的金额，< 0 表示借出
   def money_borrow_from(other_user)
     balance = Balance.between(self, other_user)
-    if balance.user_id = self.id
+    if balance.user_id == self.id
       -balance.money
     else
       balance.money

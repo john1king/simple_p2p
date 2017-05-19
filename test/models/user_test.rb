@@ -76,4 +76,24 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 100, c.amount_borrow_money
     assert_equal 0, c.amount_lend_money
   end
+
+  test 'money_borrow_from' do
+    a = User.create!(name: 'a', money: 0)
+    b = User.create!(name: 'b', money: 100)
+    a.borrow_from(b, 30)
+    assert_equal 30, a.money
+    assert_equal 30, a.money_borrow_from(b)
+    assert_equal -30, b.money_borrow_from(a)
+  end
+
+  test 'should not trade with oneself' do
+    a = User.create!(name: 'a', money: 100)
+    assert_raises(ActiveRecord::RecordInvalid){
+      a.borrow_from(a, 30)
+    }
+    assert_raises(ActiveRecord::RecordInvalid){
+      a.refund_to(a, 30)
+    }
+  end
+
 end
