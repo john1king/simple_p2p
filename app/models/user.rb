@@ -25,12 +25,7 @@ class User < ApplicationRecord
 
   # 从其他用户处借入的金额，< 0 表示借出
   def money_borrowed_from(lender)
-    loan = Loan.between(self, lender)
-    if loan.lender_id == self.id
-      -loan.money
-    else
-      loan.money
-    end
+    Loan.get_lend_money(lender, self)
   end
 
   # 借入总金额

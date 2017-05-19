@@ -22,33 +22,37 @@ class UserTest < ActiveSupport::TestCase
     a = User.create!(name: 'a', amount: 100)
     b = User.create!(name: 'b')
     b.borrow_from(a, 30)
-    # FIXME 分别不出是借入还是借出
-    assert_equal 30, Loan.between(a, b).money
-    assert_equal 30, Loan.between(b, a).money
+    assert_equal 30, Loan.get_lend_money(a, b)
+    assert_equal(-30, Loan.get_lend_money(b, a))
   end
 
   test "should refund to other user" do
-    a = User.create!(name: 'a', amount: 30)
-    b = User.create!(name: 'b', amount: 70)
-    Loan.between(a, b).update(money: -30)
+    a = User.create!(name: 'a', amount: 0)
+    b = User.create!(name: 'b', amount: 100)
+    a.borrow_from(b, 30)
+    assert_equal 30, a.amount
+    assert_equal 70, b.amount
+
     a.refund_to(b, 30)
-    assert_equal 100, b.amount
     assert_equal 0, a.amount
+    assert_equal 100, b.amount
   end
 
   test "should not refund to other user when amount < 0" do
-    a = User.create!(name: 'a', amount: 20)
-    b = User.create!(name: 'b', amount: 70)
-    Loan.between(a, b).update(money: -30)
+    a = User.create!(name: 'a', amount: 0)
+    b = User.create!(name: 'b', amount: 100)
+    c = User.create!(name: 'c', amount: 0)
+    a.borrow_from(b, 30)
+    c.borrow_from(a, 10)
     assert_raises(ActiveRecord::RecordInvalid) do
       a.refund_to(b, 30)
     end
   end
 
   test "should not refund to other user when refund money > borrowed money" do
-    a = User.create!(name: 'a', amount: 30)
-    b = User.create!(name: 'b', amount: 80)
-    Loan.between(a, b).update(money: -10)
+    a = User.create!(name: 'a', amount: 100)
+    b = User.create!(name: 'b', amount: 100)
+    a.borrow_from(b, 10)
     assert_raises(Loan::TransferError) do
       a.refund_to(b, 20)
     end
@@ -83,7 +87,7 @@ class UserTest < ActiveSupport::TestCase
     a.borrow_from(b, 30)
     assert_equal 30, a.amount
     assert_equal 30, a.money_borrowed_from(b)
-    assert_equal -30, b.money_borrowed_from(a)
+    assert_equal(-30, b.money_borrowed_from(a))
   end
 
   test 'should not trade with oneself' do
