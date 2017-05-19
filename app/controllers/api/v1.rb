@@ -28,17 +28,14 @@ class API::V1 < Grape::API
       optional :amount, type: BigDecimal, desc: 'User amount'
     end
     post do
-      User.create!(name: params[:name], amount: params[:amount].presence || 0)
+      user = User.create!(name: params[:name], amount: params[:amount].presence || 0)
+      present user, with: API::Entities::User, type: :new
     end
 
     desc 'get user balance'
     get ':id/balance' do
       user = User.find(params[:id])
-      {
-        amount: user.amount,
-        amount_borrowed: user.amount_borrowed,
-        amount_lend: user.amount_lend,
-      }
+      present user, with: API::Entities::User, type: :amount
     end
 
   end
