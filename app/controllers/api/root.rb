@@ -15,4 +15,5 @@ class API::Root < Grape::API
   end
 
   mount API::V1
+  mount API::V2
 end
