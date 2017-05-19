@@ -16,4 +16,6 @@ class API::Root < Grape::API
 
   mount API::V1
   mount API::V2
+
+  add_swagger_documentation
 end
