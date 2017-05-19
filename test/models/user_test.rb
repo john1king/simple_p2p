@@ -49,7 +49,7 @@ class UserTest < ActiveSupport::TestCase
     a = User.create!(name: 'a', amount: 30)
     b = User.create!(name: 'b', amount: 80)
     Loan.between(a, b).update(money: -10)
-    assert_raises(RuntimeError) do
+    assert_raises(Loan::TransferError) do
       a.refund_to(b, 20)
     end
   end
@@ -93,6 +93,15 @@ class UserTest < ActiveSupport::TestCase
     }
     assert_raises(ActiveRecord::RecordInvalid){
       a.refund_to(a, 30)
+    }
+  end
+
+  test 'should not borrow from user has loan' do
+    a = User.create!(name: 'a', amount: 0)
+    b = User.create!(name: 'b', amount: 100)
+    a.borrow_from(b, 30)
+    assert_raises(Loan::TransferError){
+      b.borrow_from(a, 30)
     }
   end
 

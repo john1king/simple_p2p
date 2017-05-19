@@ -6,6 +6,8 @@ class Loan < ApplicationRecord
   belongs_to :lender, class_name: 'User'
   belongs_to :borrower, class_name: 'User'
 
+  class TransferError < StandardError; end
+
   validate :user_id_order
 
   def self.between(user, other_user)
