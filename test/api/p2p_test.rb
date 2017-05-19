@@ -1,10 +1,10 @@
 require 'test_helper'
 
-class API::P2pTest < ActiveSupport::TestCase
+class API::P2PTest < ActiveSupport::TestCase
   include Rack::Test::Methods
 
   def app
-    API::P2p
+    API::P2P
   end
 
   def json_response

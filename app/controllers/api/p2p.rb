@@ -1,4 +1,4 @@
-class API::P2p < Grape::API
+class API::P2P < Grape::API
   version 'v1', using: :path
   format :json
   prefix :api
