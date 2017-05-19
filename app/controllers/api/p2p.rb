@@ -7,58 +7,57 @@ class API::P2P < Grape::API
     desc 'create user'
     params do
       requires :name, type: String, desc: 'User name'
-      optional :money, type: BigDecimal, desc: 'User money'
+      optional :amount, type: BigDecimal, desc: 'User amount'
     end
     post do
-      User.create!(name: params[:name], money: params[:money].presence || 0)
+      User.create!(name: params[:name], amount: params[:amount].presence || 0)
     end
 
     desc 'get user balances'
     get ':id/balances' do
       user = User.find(params[:id])
       {
-        id: user.id,
-        moeny: user.money,
-        borrow_money: user.amount_borrow_money,
-        lend_money: user.amount_lend_money,
+        amount: user.amount,
+        amount_borrowed: user.amount_borrowed,
+        amount_lend: user.amount_lend,
       }
     end
 
     desc 'get balances between two users'
     params do
-      requires :from, type: Integer, desc: 'User id who borrow money from other'
-      requires :to, type: Integer, desc: 'User id who lend moeny to other'
+      requires :borrower_id, type: Integer, desc: 'Borrower id'
+      requires :lender_id, type: Integer, desc: 'Lender id'
     end
     get 'balances' do
       {
-        money: User.find(params[:from]).money_borrowed_from(User.find(params[:to]))
+        money: User.find(params[:borrower_id]).money_borrowed_from(User.find(params[:lender_id]))
       }
     end
 
   end
 
-  resource :borrow_tradings do
+  resource :loans do
     desc 'create a borrow trading'
     params do
-      requires :from, type: Integer, desc: 'User id who borrow money from other'
-      requires :to, type: Integer, desc: 'User id who borrow moeny to other'
-      requires :money, type: BigDecimal, desc: 'Number of borrow money'
+      requires :borrower_id, type: Integer, desc: 'Borrower id'
+      requires :lender_id, type: Integer, desc: 'Lender id'
+      requires :money, type: BigDecimal, desc: 'Number of borrowed money'
     end
     post do
-      User.find(params[:from]).borrow_from(User.find(params[:to]), params[:money])
+      User.find(params[:borrower_id]).borrow_from(User.find(params[:lender_id]), params[:money])
       {}
     end
   end
 
-  resource :refund_tradings do
+  resource :repayments do
     desc 'create a refund trading'
     params do
-      requires :from, type: Integer, desc: 'User id who refund money to other'
-      requires :to, type: Integer, desc: 'User id who lend moeny to other'
-      requires :money, type: BigDecimal, desc: 'Number of borrow money'
+      requires :borrower_id, type: Integer, desc: 'Borrower id'
+      requires :lender_id, type: Integer, desc: 'Lender id'
+      requires :money, type: BigDecimal, desc: 'Number of borrowed money'
     end
     post do
-      User.find(params[:from]).refund_to(User.find(params[:to]), params[:money])
+      User.find(params[:borrower_id]).refund_to(User.find(params[:lender_id]), params[:money])
       {}
     end
   end
