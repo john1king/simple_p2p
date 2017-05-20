@@ -1,0 +1,2 @@
+class RefundTrading < Trading
+end

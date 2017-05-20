@@ -23,9 +23,11 @@ class Loan < ApplicationRecord
         user.save!
         other_user.save!
         loan.save!
+        yield if block_given?
       end
     end
 
+    # 获取 lender 借出给 borrower 的金额
     def get_lend_money(lender, borrower)
       loan = between(lender, borrower)
       loan.lender_id == lender.id ? loan.money : -loan.money

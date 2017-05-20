@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170518111828) do
+ActiveRecord::Schema.define(version: 20170519134635) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,17 @@ ActiveRecord::Schema.define(version: 20170518111828) do
     t.datetime "updated_at", null: false
     t.index ["borrower_id"], name: "index_loans_on_borrower_id"
     t.index ["lender_id", "borrower_id"], name: "index_loans_on_lender_id_and_borrower_id", unique: true
+  end
+
+  create_table "tradings", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "target_user_id", null: false
+    t.string "type", null: false
+    t.decimal "money", precision: 10, scale: 2, default: "0.0"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["target_user_id"], name: "index_tradings_on_target_user_id"
+    t.index ["user_id"], name: "index_tradings_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|

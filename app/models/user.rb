@@ -9,13 +9,17 @@ class User < ApplicationRecord
   # 从其他用户处借钱
   def borrow_from(lender, money)
     raise Loan::TransferError, 'can not borrow money from the user' if lender.money_borrowed_from(self) > 0
-    Loan.transfer(lender, self, money)
+    Loan.transfer(lender, self, money) do
+      BorrowTrading.record!(self, lender, money)
+    end
   end
 
   # 还款给其他用户
   def refund_to(lender, money)
     raise Loan::TransferError, 'to much money refund' if money_borrowed_from(lender) < money
-    Loan.transfer(lender, self, -money)
+    Loan.transfer(lender, self, -money) do
+      RefundTrading.record!(self, lender, money)
+    end
   end
 
   # 借钱给其他用户（主要为了方便调用）
