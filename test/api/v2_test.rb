@@ -77,9 +77,6 @@ class API::V2Test < ActiveSupport::TestCase
   end
 
   test 'create error message' do
-    post '/api/v2/users', { name: '', amount: nil }
-    assert_equal 400, last_response.status
-    assert_equal "{\"error\":\"Name can't be blank\"}", last_response.body
 
     get '/api/v2/users/10000/balance'
     assert_equal 404, last_response.status

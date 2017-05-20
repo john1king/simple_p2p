@@ -82,10 +82,6 @@ class API::V1Test < ActiveSupport::TestCase
   end
 
   test 'create error message' do
-    post '/api/v1/users', { name: '', amount: nil }
-    assert_equal 400, last_response.status
-    assert_equal "{\"error\":\"Name can't be blank\"}", last_response.body
-
     get '/api/v1/users/10000/balance'
     assert_equal 404, last_response.status
     assert_equal "{\"error\":\"Couldn't find User with 'id'=10000\"}", last_response.body

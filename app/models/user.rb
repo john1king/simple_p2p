@@ -1,6 +1,5 @@
 class User < ApplicationRecord
 
-  validates :name, presence: true, uniqueness: true
   validates :amount , numericality: { greater_than_or_equal_to: 0 }
 
   has_many :borrowings, class_name: 'Loan', foreign_key: 'borrower_id'
