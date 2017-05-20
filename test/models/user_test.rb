@@ -109,4 +109,10 @@ class UserTest < ActiveSupport::TestCase
     }
   end
 
+  test 'max amount' do
+    money = "9"*13 + ".99"
+    user = User.create!(name: 'a', amount: money)
+    assert_equal BigDecimal.new(money), user.amount
+  end
+
 end

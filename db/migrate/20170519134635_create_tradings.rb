@@ -4,7 +4,7 @@ class CreateTradings < ActiveRecord::Migration[5.1]
       t.integer :user_id, null: false
       t.integer :target_user_id, null: false
       t.string :type, null: false
-      t.decimal :money, default: 0, precision: 10, scale: 2
+      t.decimal :money, default: 0, precision: 15, scale: 2
       t.timestamps
     end
     add_index :tradings, :user_id

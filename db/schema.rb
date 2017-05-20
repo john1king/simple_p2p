@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 20170519134635) do
   create_table "loans", force: :cascade do |t|
     t.integer "lender_id"
     t.integer "borrower_id"
-    t.decimal "money", precision: 10, scale: 2, default: "0.0"
+    t.decimal "money", precision: 15, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["borrower_id"], name: "index_loans_on_borrower_id"
@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(version: 20170519134635) do
     t.integer "user_id", null: false
     t.integer "target_user_id", null: false
     t.string "type", null: false
-    t.decimal "money", precision: 10, scale: 2, default: "0.0"
+    t.decimal "money", precision: 15, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["target_user_id"], name: "index_tradings_on_target_user_id"
@@ -38,7 +38,7 @@ ActiveRecord::Schema.define(version: 20170519134635) do
 
   create_table "users", force: :cascade do |t|
     t.string "name"
-    t.decimal "amount", precision: 10, scale: 2, default: "0.0"
+    t.decimal "amount", precision: 15, scale: 2, default: "0.0"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
