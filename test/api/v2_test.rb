@@ -67,12 +67,12 @@ class API::V2Test < ActiveSupport::TestCase
 
     get "/api/v2/users/#{user_a.id}/borrowings", { from: user_b.id }
     assert_equal({
-      'borrowed_money' => '100.0',
+      'amount_borrowed' => '100.0',
     }, json_response)
 
     get "/api/v2/users/#{user_c.id}/borrowings", { from: user_b.id }
     assert_equal({
-      'borrowed_money' => '-70.0',
+      'amount_borrowed' => '-70.0',
     }, json_response)
   end
 

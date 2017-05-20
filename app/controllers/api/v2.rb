@@ -10,7 +10,7 @@ class API::V2 < Grape::API
   resource :users do
     desc 'create user'
     params do
-      requires :name, type: String, desc: 'User name'
+      optional :name, type: String, desc: 'User name'
       optional :amount, type: BigDecimal, desc: 'User amount'
     end
 
@@ -45,7 +45,7 @@ class API::V2 < Grape::API
           requires :from, type: Integer, desc: 'Borrower id'
         end
         get do
-          { borrowed_money: current_user.money_borrowed_from(User.find(params[:from])) }
+          { amount_borrowed: current_user.money_borrowed_from(User.find(params[:from])) }
         end
       end
 

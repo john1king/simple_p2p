@@ -24,7 +24,7 @@ class API::V1 < Grape::API
   resource :users do
     desc 'create user'
     params do
-      requires :name, type: String, desc: 'User name'
+      optional :name, type: String, desc: 'User name'
       optional :amount, type: BigDecimal, desc: 'User amount'
     end
     post do
@@ -56,7 +56,7 @@ class API::V1 < Grape::API
       use :pair
     end
     get do
-      { borrowed_money: borrower.money_borrowed_from(lender) }
+      { amount_borrowed: borrower.money_borrowed_from(lender) }
     end
   end
 
