@@ -15,6 +15,7 @@ class Loan < ApplicationRecord
     # 参数 money > 0 为借出，< 0 为借入
     def transfer(user, other_user, money)
       transaction do
+        user.lock!
         loan = between(user, other_user)
         user.amount -= money
         other_user.amount += money
