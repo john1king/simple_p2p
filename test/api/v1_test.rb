@@ -36,52 +36,72 @@ class API::V1Test < ActiveSupport::TestCase
   end
 
   test 'should get balances of users' do
-    post '/api/v1/users', { name: 'a', amount: 100}
-    a = json_response['id']
+    user_a = User.create!({ name: 'a', amount: 100})
+    user_b = User.create!({ name: 'b', amount: 100})
+    user_c = User.create!({ name: 'c', amount: 100})
 
-    post '/api/v1/users', { name: 'b', amount: 100}
-    b = json_response['id']
+    user_a.borrow_from(user_b, 100)
+    user_b.borrow_from(user_c, 70)
+    user_c.borrow_from(user_a, 30)
 
-    post '/api/v1/users', { name: 'c', amount: 100}
-    c = json_response['id']
-
-    post '/api/v1/borrowings', { borrower_id: a, lender_id: b, money: 100 }
-    post '/api/v1/borrowings', { borrower_id: b, lender_id: c, money: 70 }
-    post '/api/v1/borrowings', { borrower_id: c, lender_id: a, money: 30 }
-
-    get "/api/v1/users/#{a}/balance"
+    get "/api/v1/users/#{user_a.id}/balance"
     assert_equal({
       'amount' => '170.0',
       'amount_borrowed' => '100.0',
       'amount_lend' => '30.0',
     }, json_response)
 
-    get "/api/v1/users/#{b}/balance"
+    get "/api/v1/users/#{user_b.id}/balance"
     assert_equal({
       'amount' => '70.0',
       'amount_borrowed' => '70.0',
       'amount_lend' => '100.0',
     }, json_response)
 
-    get "/api/v1/users/#{c}/balance"
+    get "/api/v1/users/#{user_c.id}/balance"
     assert_equal({
       'amount' => '60.0',
       'amount_borrowed' => '30.0',
       'amount_lend' => '70.0',
     }, json_response)
 
-    get "/api/v1/borrowings", { borrower_id: a, lender_id: b }
+    get "/api/v1/borrowings", { borrower_id: user_a.id, lender_id: user_b.id }
     assert_equal({
       'amount_borrowed' => '100.0',
     }, json_response)
 
-    get "/api/v1/borrowings", { borrower_id: c, lender_id: b }
+    get "/api/v1/borrowings", { borrower_id: user_c.id, lender_id: user_b.id }
     assert_equal({
       'amount_borrowed' => '-70.0',
     }, json_response)
   end
 
-  test 'create error message' do
+  test 'decimal range' do
+    amounts = [123.456, 0.9e15, -100, 0]
+    amounts.each do |amount|
+      post '/api/v1/users', {  amount: amount }
+      if amount == 0
+        assert_equal 201, last_response.status
+      else
+        assert_equal 400, last_response.status
+        assert_equal "\{\"error\":\"amount invalid decimal range\"}", last_response.body
+      end
+
+      post '/api/v1/borrowings', { borrower_id: 1, lender_id: 2, money: amount }
+      assert_equal 400, last_response.status
+      assert_equal "\{\"error\":\"money invalid decimal range\"}", last_response.body
+    end
+  end
+
+  test 'decimal overflow' do
+    user_a = User.create!({ name: 'a', amount: 0.9e13 })
+    user_b = User.create!({ name: 'b', amount: 0.9e13 })
+    post '/api/v1/borrowings', { borrower_id: user_a.id, lender_id: user_b.id, money: 0.2e13 }
+    assert_equal 400, last_response.status
+    assert_equal "{\"error\":\"Oops, you are so rich\"}", last_response.body
+  end
+
+  test 'error message' do
     get '/api/v1/users/10000/balance'
     assert_equal 404, last_response.status
     assert_equal "{\"error\":\"Couldn't find User with 'id'=10000\"}", last_response.body

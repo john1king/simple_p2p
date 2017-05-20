@@ -9,7 +9,7 @@ class API::V1 < Grape::API
 
     params :trading do
       use :pair
-      requires :money, type: BigDecimal, desc: 'Transaction amount'
+      requires :money, type: BigDecimal, desc: 'Transaction amount', decimal_money: true
     end
 
     def borrower
@@ -25,7 +25,7 @@ class API::V1 < Grape::API
     desc 'create user'
     params do
       optional :name, type: String, desc: 'User name'
-      optional :amount, type: BigDecimal, desc: 'User amount'
+      optional :amount, type: BigDecimal, desc: 'User amount', decimal_money: { zero: true }
     end
     post do
       user = User.create!(name: params[:name], amount: params[:amount].presence || 0)

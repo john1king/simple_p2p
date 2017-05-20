@@ -11,7 +11,7 @@ class API::V2 < Grape::API
     desc 'create user'
     params do
       optional :name, type: String, desc: 'User name'
-      optional :amount, type: BigDecimal, desc: 'User amount'
+      optional :amount, type: BigDecimal, desc: 'User amount', decimal_money: { zero: true }
     end
 
     post do
@@ -32,7 +32,7 @@ class API::V2 < Grape::API
         desc 'create a borrow trading'
         params do
           requires :from, type: Integer, desc: 'Borrower id'
-          requires :money, type: BigDecimal, desc: 'Transaction amount'
+          requires :money, type: BigDecimal, desc: 'Transaction amount', decimal_money: true
         end
         post do
           status 200
@@ -53,7 +53,7 @@ class API::V2 < Grape::API
         desc 'create a refund trading'
         params do
           requires :to, type: Integer, desc: 'Lender id'
-          requires :money, type: BigDecimal, desc: 'Transaction amount'
+          requires :money, type: BigDecimal, desc: 'Transaction amount', decimal_money: true
         end
         post do
           status 200

@@ -1,3 +1,6 @@
+
+require_dependency "decimal_money"
+
 class API::Root < Grape::API
   format :json
   prefix :api
@@ -12,6 +15,10 @@ class API::Root < Grape::API
 
   rescue_from ActiveRecord::RecordInvalid do |e|
     error!({ error: e.record.errors.full_messages.join(',') }, 400)
+  end
+
+  rescue_from ActiveRecord::RangeError do |e|
+    error!({ error: 'Oops, you are so rich' }, 400)
   end
 
   mount API::V1
